@@ -13,7 +13,7 @@
 <section class="panel">
 <h2>1. N と seed</h2>
 <div class="row"><div><label for="n">都市数 N</label><input id="n" type="number" value="5" min="3" max="100" step="1"></div><div><label for="seed">seed（整数）</label><input id="seed" type="number" value="42" step="1"></div></div>
-<p class="sub">「距離配列を生成」を押すと、seedで決まる大きさの正N角形を生成し、全都市間距離を三角配列で表示します。都市の配置は常に正多角形です。</p>
+<p class="sub">「距離配列を生成」を押すと、seedに基づいて都市ペアごとの移動時間を独立にランダム生成します（1〜1000の整数）。都市の配置は見やすさのための正多角形であり、図上の直線距離と移動時間は無関係です。</p>
 <div class="buttons"><button id="generate">距離配列を生成</button><button id="copy" class="secondary">Nと三角配列をコピー</button></div>
 <div class="section"><h2>2. N と距離の三角配列（対角成分なし）</h2>
 <label for="triangle">1行目にN、続けてN−1行の距離</label>
@@ -24,14 +24,14 @@
 </div>
 <div class="section"><h2>3. 訪問順の配列</h2>
 <label for="route">長さ N+1 の配列</label><textarea id="route" placeholder="[1, 2, 3, 4, 5, 1]" spellcheck="false"></textarea>
-<p class="sub">都市1から出発し、2〜Nを各1回訪問して都市1に帰着。カンマ・空白区切り、[]の有無は自由です。</p>
-<div class="buttons"><button id="show">検証して経路と移動時間を表示</button><button id="example" class="secondary">訪問順の入力例</button></div>
+<p class="sub">都市1から出発し、2〜Nを各1回訪問して都市1に帰着。カンマ・空白区切り、[]の有無は自由です。例のボタンを押すたびに訪問順をシャッフルします。</p>
+<div class="buttons"><button id="show">検証して経路と移動時間を表示</button><button id="example" class="secondary">ランダムな訪問順の例を生成</button></div>
 <div id="routeStatus" role="status" aria-live="polite" class="status info">訪問順が正しく入力されるまで経路は描画しません。</div></div>
 </section>
 <section class="panel vizpanel"><div class="vizheader"><h2>4. 大きな経路ビジュアライザ</h2><div class="score hidden" id="score"></div></div>
 <div class="canvas" id="visual"></div>
-<p class="legend">都市を正N角形の頂点に時計回りに配置します。灰色の円は位置の目安で、完全グラフの辺は表示しません。<strong>有効な経路を入力したときだけ</strong>青い経路線とオレンジ色の進行方向矢印を描画し、<strong>各矢印のそばにその区間の移動時間</strong>を表示します。スコアは三角配列の値の合計です（小さいほど良い）。各区間と合計の移動時間も下に表示します。</p>
-<p class="sub">※ 三角配列の数値をその区間の移動時間（時間単位）として扱います。距離を時間へ変換する速度設定はありません。図は都市の順序と経路を示します。</p>
+<p class="legend">都市を正N角形の頂点に時計回りに配置します。灰色の円は位置の目安で、完全グラフの辺は表示しません。都市間の移動時間はランダムな重みで、図上の線の長さとは一致しません。<strong>有効な経路を入力したときだけ</strong>青い経路線とオレンジ色の進行方向矢印を描画し、<strong>各矢印のそばにその区間の移動時間</strong>を表示します。スコアは三角配列の値の合計です（小さいほど良い）。各区間と合計の移動時間も下に表示します。</p>
+<p class="sub">※ 三角配列の数値をその区間の移動時間として扱います。ランダム重みは対称 d(i,j)=d(j,i) ですが、三角不等式は保証されません。図は都市の位置関係ではなく、訪問順と方向を示す模式図です。</p>
 <div id="travelTimes" class="hidden" aria-live="polite"><div class="time-summary">合計移動時間：<strong id="totalTime"></strong></div><h3>通った区間ごとの移動時間</h3><div class="leg-wrap"><table class="leg-table"><thead><tr><th>区間</th><th>移動時間</th></tr></thead><tbody id="legRows"></tbody></table></div></div>
 </section>
 </main><div class="footer">GitHub Pages対応・外部ライブラリ不要・ブラウザ内のみで動作します。</div>
@@ -39,11 +39,26 @@
 'use strict';
 const $=id=>document.getElementById(id);
 let model=null;
+let exampleCounter=0;
 function parameters(){const n=Number($('n').value),seed=Number($('seed').value);if(!Number.isSafeInteger(n)||n<3||n>100)throw Error('Nは3〜100の整数を指定してください。');if(!Number.isSafeInteger(seed))throw Error('seedは安全な整数を指定してください。');return {n,seed};}
 function rng(seed){let a=seed>>>0;return function(){a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296}}
 function makePoints(n,radius=1){return Array.from({length:n},(_,i)=>{const a=-Math.PI/2+2*Math.PI*i/n;return{x:radius*Math.cos(a),y:radius*Math.sin(a)}})}
-function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
-function makeMatrix(n,seed){const rand=rng(seed);const radius=70+Math.floor(rand()*131);const p=makePoints(n,radius);return Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?0:Number(distance(p[i],p[j]).toFixed(2))))}
+function makeMatrix(n,seed){
+ const rand=rng(seed);
+ const m=Array.from({length:n},()=>Array(n).fill(0));
+ for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
+  // Independent random edge weights: not derived from the regular polygon geometry.
+  const time=1+Math.floor(rand()*1000);
+  m[i][j]=m[j][i]=time;
+ }
+ return m;
+}
+function randomExampleRoute(n,seed,index){
+ const r=rng((seed ^ 0xA5F0192D ^ Math.imul(index+1,0x9E3779B9))>>>0);
+ const middle=Array.from({length:n-1},(_,i)=>i+2);
+ for(let i=middle.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[middle[i],middle[j]]=[middle[j],middle[i]];}
+ return [1,...middle,1];
+}
 function formatTriangle(n,matrix){const lines=[String(n)];for(let i=0;i<n-1;i++)lines.push(matrix[i].slice(i+1).map(v=>String(v)).join(' '));return lines.join('\n')}
 function parseTriangle(raw){
  const lines=raw.trim().split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
@@ -117,12 +132,12 @@ function draw(n,route=null,matrix=null){
  $('visual').replaceChildren(svg);
 }
 function resetRoute(note='訪問順が正しく入力されるまで経路は描画しません。'){if(model)draw(model.n);else $('visual').innerHTML='<div style="padding:45px;text-align:center;color:#67758b">Nとseedから距離配列を生成してください。</div>';$('score').textContent='';$('score').classList.add('hidden');$('travelTimes').classList.add('hidden');$('legRows').replaceChildren();$('totalTime').textContent='';status('routeStatus',note,'info')}
-function generate(){try{const {n,seed}=parameters();const matrix=makeMatrix(n,seed);$('triangle').value=formatTriangle(n,matrix);model={n,matrix};draw(n);resetRoute('距離配列を生成しました。長さN+1の訪問順を入力してください。');status('matrixStatus',`N=${n}・seed=${seed}から距離を生成しました。対角を除いた上三角の${n*(n-1)/2}個を表示しています。`,'success')}catch(e){status('matrixStatus',e.message,'error');model=null;resetRoute()}}
+function generate(){try{const {n,seed}=parameters();exampleCounter=0;const matrix=makeMatrix(n,seed);$('triangle').value=formatTriangle(n,matrix);model={n,matrix};draw(n);resetRoute('距離配列を生成しました。長さN+1の訪問順を入力してください。');status('matrixStatus',`N=${n}・seed=${seed}からランダムな移動時間を生成しました。対角を除いた上三角の${n*(n-1)/2}個を表示しています。`,'success')}catch(e){status('matrixStatus',e.message,'error');model=null;resetRoute()}}
 function apply(){try{const next=parseTriangle($('triangle').value);$('n').value=String(next.n);model=next;draw(model.n);resetRoute('三角配列を反映しました。経路を再検証してください。');status('matrixStatus',`N=${model.n}の距離配列を反映しました。d(i,j)=d(j,i)として扱います。`,'success')}catch(e){model=null;status('matrixStatus',e.message,'error');resetRoute('距離配列の入力エラーを修正してください。')}}
 function formatTime(value){return Number(value.toFixed(6)).toLocaleString('ja-JP',{maximumFractionDigits:6})}
 function show(){try{const next=parseTriangle($('triangle').value);model=next;$('n').value=String(next.n);const order=parseRoute($('route').value,next.n);let score=0;const legRows=[];for(let i=0;i<next.n;i++){const t=next.matrix[order[i]-1][order[i+1]-1];score+=t;const tr=document.createElement('tr');const pathCell=document.createElement('td');const timeCell=document.createElement('td');pathCell.textContent=`${order[i]} → ${order[i+1]}`;timeCell.textContent=formatTime(t);tr.append(pathCell,timeCell);legRows.push(tr)}draw(next.n,order,next.matrix);$('score').textContent=`Score: ${formatTime(score)}`;$('score').classList.remove('hidden');$('totalTime').textContent=formatTime(score);$('legRows').replaceChildren(...legRows);$('travelTimes').classList.remove('hidden');status('matrixStatus',`N=${next.n}の三角配列を利用しています。`,'success');status('routeStatus',`有効な巡回路です。${next.n}都市をちょうど1回ずつ訪問して都市1に戻ります。`,'success')}catch(e){model=null;try{model=parseTriangle($('triangle').value)}catch(_){ }resetRoute();status('routeStatus','エラー: '+e.message,'error')}}
 $('generate').addEventListener('click',generate);$('apply').addEventListener('click',apply);$('show').addEventListener('click',show);
-$('example').addEventListener('click',()=>{try{const n=model?.n??parameters().n;$('route').value='['+Array.from({length:n},(_,i)=>i+1).concat(1).join(', ')+']';resetRoute('訪問順の入力例を入れました。「検証して経路と移動時間を表示」を押してください。')}catch(e){status('routeStatus',e.message,'error')}});
+$('example').addEventListener('click',()=>{try{const n=model?.n??parameters().n;const seed=parameters().seed;const order=randomExampleRoute(n,seed,exampleCounter++);$('route').value='['+order.join(', ')+']';resetRoute('ランダムな訪問順の例を入れました。「検証して経路と移動時間を表示」を押してください。')}catch(e){status('routeStatus',e.message,'error')}});
 $('copy').addEventListener('click',async()=>{try{parseTriangle($('triangle').value);await navigator.clipboard.writeText($('triangle').value);status('matrixStatus','Nと三角配列をコピーしました。','success')}catch(e){if(e.name==='NotAllowedError'||e.name==='SecurityError'){ $('triangle').focus();$('triangle').select();status('matrixStatus','自動コピーが許可されませんでした。選択済みの内容をCtrl+Cでコピーしてください。','info')}else status('matrixStatus',e.message,'error')}});
 $('route').addEventListener('input',()=>resetRoute('訪問順が変更されました。再度検証してください。'));
 $('triangle').addEventListener('input',()=>{model=null;resetRoute('三角配列が変更されました。「配列を反映」または経路の検証をしてください。');status('matrixStatus','未検証の三角配列です。','info')});
