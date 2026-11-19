@@ -4,8 +4,8 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TSP 三角距離配列・経路ビジュアライザ</title>
 <style>
-:root{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#18263b;background:#f2f5f9}*{box-sizing:border-box}body{margin:0}header{background:#152b4c;color:#fff;padding:22px max(20px,calc((100vw - 1200px)/2))}header h1{margin:0;font-size:1.45rem}header p{margin:7px 0 0;color:#cfdbed;font-size:.91rem}.layout{max-width:1200px;margin:20px auto;padding:0 18px;display:grid;grid-template-columns:minmax(330px,460px) minmax(0,1fr);gap:18px}.panel{background:white;border:1px solid #e4eaf2;border-radius:14px;padding:20px;box-shadow:0 3px 14px #142d5010}.panel h2{margin:0 0 14px;font-size:1.05rem}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:block;font-weight:700;font-size:.88rem;margin:0 0 7px}input,textarea{width:100%;border:1px solid #bdcbdc;border-radius:9px;padding:10px;font:inherit;background:#fff;color:#18263b}textarea{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.85rem;resize:vertical;line-height:1.6}textarea#triangle{height:235px}textarea#route{height:82px}input:focus,textarea:focus{outline:2px solid #5b9bee;outline-offset:1px}button{border:0;border-radius:9px;background:#2463ca;color:#fff;padding:11px 14px;font-weight:700;cursor:pointer;font-size:.91rem}button:hover{background:#1a4fa5}button.secondary{color:#2352a0;background:#eaf1fb}button.secondary:hover{background:#dce9fa}.buttons{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.sub{color:#66758a;font-size:.81rem;line-height:1.6;margin:7px 0 11px}.status{border-radius:9px;padding:11px 13px;margin:12px 0;font-size:.88rem;line-height:1.5}.info{background:#edf3fd;color:#2a5488}.error{background:#fff0f1;color:#a52938}.success{background:#e9f9f1;color:#17704a}.hidden{display:none}.section{margin-top:23px;padding-top:19px;border-top:1px solid #e9edf4}.vizheader{display:flex;justify-content:space-between;align-items:center;gap:12px}.score{font-size:1.35rem;font-weight:800;color:#15704b;font-variant-numeric:tabular-nums}.canvas{border:1px solid #e1e7f0;border-radius:13px;background:#f9fbff;margin-top:13px;overflow:hidden}.canvas svg{display:block;width:100%;height:auto;aspect-ratio:1.25}.legend{color:#607187;font-size:.82rem;line-height:1.7;margin:10px 0}.sample{color:#354f73;background:#f4f7fc;border-radius:8px;padding:9px;font: .85rem ui-monospace,Consolas,monospace}.time-summary{margin-top:16px;padding:14px 16px;border-radius:11px;background:#edf7f2;border:1px solid #bfe1d1}.time-summary strong{font-size:1.25rem;color:#126747}.leg-table{width:100%;border-collapse:collapse;margin-top:10px;font-variant-numeric:tabular-nums}.leg-table th,.leg-table td{padding:9px 12px;text-align:left;border-bottom:1px solid #e6edf4}.leg-table th{background:#f4f7fc;color:#4d6079;font-size:.83rem}.leg-table td:last-child,.leg-table th:last-child{text-align:right}.leg-wrap{max-height:340px;overflow:auto;border:1px solid #e6edf4;border-radius:10px;margin-top:10px}.footer{max-width:1200px;margin:0 auto 25px;padding:0 18px;color:#64758b;font-size:.82rem}@media(max-width:850px){.layout{grid-template-columns:1fr}}@media(max-width:410px){.row{grid-template-columns:1fr}}
-</style>
+:root{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#18263b;background:#f2f5f9}*{box-sizing:border-box}body{margin:0}header{background:#152b4c;color:#fff;padding:22px max(20px,calc((100vw - 1200px)/2))}header h1{margin:0;font-size:1.45rem}header p{margin:7px 0 0;color:#cfdbed;font-size:.91rem}.layout{max-width:1400px;margin:20px auto;padding:0 18px;display:grid;grid-template-columns:1fr 1fr;gap:18px}.vizpanel{grid-column:1/-1}.panel{background:white;border:1px solid #e4eaf2;border-radius:14px;padding:20px;box-shadow:0 3px 14px #142d5010}.panel h2{margin:0 0 14px;font-size:1.05rem}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:block;font-weight:700;font-size:.88rem;margin:0 0 7px}input,textarea{width:100%;border:1px solid #bdcbdc;border-radius:9px;padding:10px;font:inherit;background:#fff;color:#18263b}textarea{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.85rem;resize:vertical;line-height:1.6}textarea#triangle{height:290px}textarea#route{height:82px}input:focus,textarea:focus{outline:2px solid #5b9bee;outline-offset:1px}button{border:0;border-radius:9px;background:#2463ca;color:#fff;padding:11px 14px;font-weight:700;cursor:pointer;font-size:.91rem}button:hover{background:#1a4fa5}button.secondary{color:#2352a0;background:#eaf1fb}button.secondary:hover{background:#dce9fa}.buttons{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.sub{color:#66758a;font-size:.81rem;line-height:1.6;margin:7px 0 11px}.status{border-radius:9px;padding:11px 13px;margin:12px 0;font-size:.88rem;line-height:1.5}.info{background:#edf3fd;color:#2a5488}.error{background:#fff0f1;color:#a52938}.success{background:#e9f9f1;color:#17704a}.hidden{display:none}.section{margin-top:23px;padding-top:19px;border-top:1px solid #e9edf4}.vizheader{display:flex;justify-content:space-between;align-items:center;gap:12px}.score{font-size:1.35rem;font-weight:800;color:#15704b;font-variant-numeric:tabular-nums}.canvas{border:1px solid #e1e7f0;border-radius:13px;background:#f9fbff;margin-top:13px;overflow:hidden}.canvas svg{display:block;width:100%;height:auto;max-height:950px;aspect-ratio:1.35}.legend{color:#607187;font-size:.82rem;line-height:1.7;margin:10px 0}.sample{color:#354f73;background:#f4f7fc;border-radius:8px;padding:9px;font: .85rem ui-monospace,Consolas,monospace}.time-summary{margin-top:16px;padding:14px 16px;border-radius:11px;background:#edf7f2;border:1px solid #bfe1d1}.time-summary strong{font-size:1.25rem;color:#126747}.leg-table{width:100%;border-collapse:collapse;margin-top:10px;font-variant-numeric:tabular-nums}.leg-table th,.leg-table td{padding:9px 12px;text-align:left;border-bottom:1px solid #e6edf4}.leg-table th{background:#f4f7fc;color:#4d6079;font-size:.83rem}.leg-table td:last-child,.leg-table th:last-child{text-align:right}.leg-wrap{max-height:340px;overflow:auto;border:1px solid #e6edf4;border-radius:10px;margin-top:10px}.footer{max-width:1400px;margin:0 auto 25px;padding:0 18px;color:#64758b;font-size:.82rem}@media(max-width:850px){.layout{grid-template-columns:1fr}.vizpanel{grid-column:1}}@media(max-width:410px){.row{grid-template-columns:1fr}}
+.edge-label{font:700 15px system-ui,sans-serif;fill:#12385e;paint-order:stroke;stroke:white;stroke-width:5;stroke-linejoin:round}.viz-note{margin:6px 0;color:#627186;font-size:.85rem}</style>
 </head>
 <body>
 <header><h1>TSP 三角距離配列・経路ビジュアライザ</h1><p>正N角形に都市1〜Nを時計回りに配置。完全グラフの辺は描画しません。</p></header>
@@ -15,10 +15,10 @@
 <div class="row"><div><label for="n">都市数 N</label><input id="n" type="number" value="5" min="3" max="100" step="1"></div><div><label for="seed">seed（整数）</label><input id="seed" type="number" value="42" step="1"></div></div>
 <p class="sub">「距離配列を生成」を押すと、seedで決まる大きさの正N角形を生成し、全都市間距離を三角配列で表示します。都市の配置は常に正多角形です。</p>
 <div class="buttons"><button id="generate">距離配列を生成</button><button id="copy" class="secondary">Nと三角配列をコピー</button></div>
-<div class="section"><h2>2. N と距離の三角配列</h2>
-<label for="triangle">1行目にN、続けてN行の距離</label>
+<div class="section"><h2>2. N と距離の三角配列（対角成分なし）</h2>
+<label for="triangle">1行目にN、続けてN−1行の距離</label>
 <textarea id="triangle" spellcheck="false" aria-describedby="triangleHelp"></textarea>
-<p class="sub" id="triangleHelp">1行目：N個（d(1,1)〜d(1,N)）、2行目：N−1個（d(2,2)〜d(2,N)）、…、最終行：1個（d(N,N)）。距離は非負の数、対角成分は0。手入力・貼り付けして「配列を反映」もできます。</p>
+<p class="sub" id="triangleHelp">距離の1行目：N−1個（d(1,2)〜d(1,N)）、2行目：N−2個（d(2,3)〜d(2,N)）、…、最終行：1個（d(N−1,N)）。d(i,i)=0は自動補完します。</p>
 <div class="buttons"><button id="apply" class="secondary">配列を反映</button></div>
 <div id="matrixStatus" role="status" aria-live="polite" class="status info">距離配列を生成するか、貼り付けてください。</div>
 </div>
@@ -28,9 +28,9 @@
 <div class="buttons"><button id="show">検証して経路と移動時間を表示</button><button id="example" class="secondary">訪問順の入力例</button></div>
 <div id="routeStatus" role="status" aria-live="polite" class="status info">訪問順が正しく入力されるまで経路は描画しません。</div></div>
 </section>
-<section class="panel"><div class="vizheader"><h2>4. ビジュアライザ</h2><div class="score hidden" id="score"></div></div>
+<section class="panel vizpanel"><div class="vizheader"><h2>4. 大きな経路ビジュアライザ</h2><div class="score hidden" id="score"></div></div>
 <div class="canvas" id="visual"></div>
-<p class="legend">都市を正N角形の頂点に時計回りに配置します。灰色の円は位置の目安で、完全グラフの辺は表示しません。<strong>有効な経路を入力したときだけ</strong>進行方向を示す青い矢印を描画します。スコアは三角配列の値の合計です（小さいほど良い）。各区間と合計の移動時間も下に表示します。</p>
+<p class="legend">都市を正N角形の頂点に時計回りに配置します。灰色の円は位置の目安で、完全グラフの辺は表示しません。<strong>有効な経路を入力したときだけ</strong>青い経路線とオレンジ色の進行方向矢印を描画し、<strong>各矢印のそばにその区間の移動時間</strong>を表示します。スコアは三角配列の値の合計です（小さいほど良い）。各区間と合計の移動時間も下に表示します。</p>
 <p class="sub">※ 三角配列の数値をその区間の移動時間（時間単位）として扱います。距離を時間へ変換する速度設定はありません。図は都市の順序と経路を示します。</p>
 <div id="travelTimes" class="hidden" aria-live="polite"><div class="time-summary">合計移動時間：<strong id="totalTime"></strong></div><h3>通った区間ごとの移動時間</h3><div class="leg-wrap"><table class="leg-table"><thead><tr><th>区間</th><th>移動時間</th></tr></thead><tbody id="legRows"></tbody></table></div></div>
 </section>
@@ -44,18 +44,83 @@ function rng(seed){let a=seed>>>0;return function(){a=(a+0x6D2B79F5)>>>0;let t=a
 function makePoints(n,radius=1){return Array.from({length:n},(_,i)=>{const a=-Math.PI/2+2*Math.PI*i/n;return{x:radius*Math.cos(a),y:radius*Math.sin(a)}})}
 function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
 function makeMatrix(n,seed){const rand=rng(seed);const radius=70+Math.floor(rand()*131);const p=makePoints(n,radius);return Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?0:Number(distance(p[i],p[j]).toFixed(2))))}
-function formatTriangle(n,matrix){const lines=[String(n)];for(let i=0;i<n;i++)lines.push(matrix[i].slice(i).map(v=>String(v)).join(' '));return lines.join('\n')}
-function parseTriangle(raw){let lines=raw.trim().split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(!lines.length)throw Error('三角配列が空です。');const header=lines[0].split(/[\s,]+/);if(header.length!==1||!/^[0-9]+$/.test(header[0]))throw Error('1行目には都市数Nを1つだけ書いてください。');const n=Number(header[0]);if(!Number.isSafeInteger(n)||n<3||n>100)throw Error('Nは3〜100の整数にしてください。');if(lines.length!==n+1)throw Error(`N=${n}なので、1行目のNと距離${n}行、合計${n+1}行が必要です（現在${lines.length}行）。`);const m=Array.from({length:n},()=>Array(n).fill(0));for(let i=0;i<n;i++){const t=lines[i+1].split(/[\s,]+/).filter(Boolean);if(t.length!==n-i)throw Error(`距離の${i+1}行目は${n-i}個必要です（現在${t.length}個）。`);for(let k=0;k<t.length;k++){const token=t[k];if(!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(token))throw Error(`距離の${i+1}行目、${k+1}個目は非負の数にしてください。`);const v=Number(token);if(!Number.isFinite(v))throw Error('距離に無限大は使えません。');if(k===0&&v!==0)throw Error(`対角成分d(${i+1},${i+1})は0にしてください。`);m[i][i+k]=m[i+k][i]=v;}}return{n,matrix:m}}
+function formatTriangle(n,matrix){const lines=[String(n)];for(let i=0;i<n-1;i++)lines.push(matrix[i].slice(i+1).map(v=>String(v)).join(' '));return lines.join('\n')}
+function parseTriangle(raw){
+ const lines=raw.trim().split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ if(!lines.length)throw Error('三角配列が空です。');
+ const header=lines[0].split(/[\s,]+/);
+ if(header.length!==1||!/^[0-9]+$/.test(header[0]))throw Error('1行目には都市数Nを1つだけ書いてください。');
+ const n=Number(header[0]);
+ if(!Number.isSafeInteger(n)||n<3||n>100)throw Error('Nは3〜100の整数にしてください。');
+ if(lines.length!==n)throw Error(`N=${n}なので、Nの行と距離${n-1}行、合計${n}行が必要です（現在${lines.length}行）。`);
+ const m=Array.from({length:n},()=>Array(n).fill(0));
+ for(let i=0;i<n-1;i++){
+  const t=lines[i+1].split(/[\s,]+/).filter(Boolean);
+  if(t.length!==n-i-1)throw Error(`距離の${i+1}行目は${n-i-1}個必要です（現在${t.length}個）。`);
+  for(let k=0;k<t.length;k++){
+   const token=t[k];
+   if(!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(token))throw Error(`距離の${i+1}行目、${k+1}個目は非負の数にしてください。`);
+   const v=Number(token);
+   if(!Number.isFinite(v))throw Error('距離に無限大は使えません。');
+   m[i][i+k+1]=m[i+k+1][i]=v;
+  }
+ }
+ return {n,matrix:m};
+}
 function parseRoute(s,n){let a=s.trim();if(!a)throw Error('訪問順を入力してください。');if(a.startsWith('[')||a.endsWith(']')){if(!a.startsWith('[')||!a.endsWith(']'))throw Error('角括弧が対応していません。');a=a.slice(1,-1).trim()}const t=a.split(/[\s,]+/).filter(Boolean);if(t.length!==n+1)throw Error(`N=${n}の訪問順は長さ${n+1}が必要です（現在${t.length}個）。`);const order=t.map((v,i)=>{if(!/^[1-9][0-9]*$/.test(v))throw Error(`${i+1}番目の値「${v}」は1以上の整数ではありません。`);const num=Number(v);if(!Number.isSafeInteger(num)||num>n)throw Error(`都市${v}は範囲外です（1〜${n}）。`);return num});if(order[0]!==1||order[n]!==1)throw Error('先頭と末尾は都市1にしてください。');const seen=new Set();for(let i=0;i<n;i++){if(seen.has(order[i]))throw Error(`都市${order[i]}が重複しています。`);seen.add(order[i])}return order}
 function status(id,msg,type){$(id).textContent=msg;$(id).className='status '+type}
 function svgEl(name,attrs={}){const e=document.createElementNS('http://www.w3.org/2000/svg',name);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,String(v)));return e}
-function draw(n,route=null){const svg=svgEl('svg',{viewBox:'0 0 640 510',role:'img','aria-label':route?'TSPの訪問経路':'正多角形に配置された都市'});const cx=320,cy=245,r=193;const pts=makePoints(n).map(p=>({x:cx+r*p.x,y:cy+r*p.y}));svg.append(svgEl('circle',{cx,cy,r,fill:'none',stroke:'#dae3ef','stroke-width':'1.6','stroke-dasharray':'6 5'}));if(route){for(let i=0;i<n;i++){const a=pts[route[i]-1],b=pts[route[i+1]-1];svg.append(svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'#3575d7','stroke-width':n>60?1.5:2.8,'stroke-linecap':'round'}));const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);if(len>0){const ux=dx/len,uy=dy/len;const offset=Math.min(13,len*.23);const tipX=a.x+dx*.58,tipY=a.y+dy*.58;const tailX=tipX-ux*offset,tailY=tipY-uy*offset;const wing=Math.min(6,Math.max(2.2,len*.13));const poly=svgEl('polygon',{points:`${tipX},${tipY} ${tailX-uy*wing},${tailY+ux*wing} ${tailX+uy*wing},${tailY-ux*wing}`,fill:'#e56c2b',stroke:'#fff','stroke-width':n>35?.7:1.2,'stroke-linejoin':'round'});const title=svgEl('title');title.textContent=`${i+1}区間目: 都市${route[i]}から都市${route[i+1]}へ`;poly.append(title);svg.append(poly)}}}
- const rad=n>55?7:n>28?9:12;pts.forEach((p,i)=>{svg.append(svgEl('circle',{cx:p.x,cy:p.y,r:rad,fill:i===0?'#13876a':'#255d9d',stroke:'#fff','stroke-width':1.4}));const pos=n>55?{x:p.x+(p.x-cx)*.065,y:p.y+(p.y-cy)*.065}:{x:p.x,y:p.y+4};const text=svgEl('text',{x:pos.x,y:pos.y,'text-anchor':'middle','font-size':n>55?10:n>28?10:11,'font-weight':700,fill:n>55?'#243b59':'#fff'});text.textContent=i+1;svg.append(text)});$('visual').replaceChildren(svg)}
+function draw(n,route=null,matrix=null){
+ const svg=svgEl('svg',{viewBox:'0 0 1000 800',role:'img','aria-label':route?'移動時間と進行方向を示したTSP巡回路':'時計回りの正多角形の都市配置'});
+ const cx=500,cy=395,r=294;
+ const pts=makePoints(n).map(p=>({x:cx+r*p.x,y:cy+r*p.y}));
+ svg.append(svgEl('circle',{cx,cy,r,fill:'none',stroke:'#dae3ef','stroke-width':'2','stroke-dasharray':'7 7'}));
+ if(route){
+  const labels=[];
+  const edgeLayer=svgEl('g'),arrowLayer=svgEl('g'),labelLayer=svgEl('g');
+  for(let i=0;i<n;i++){
+   const a=pts[route[i]-1],b=pts[route[i+1]-1];
+   const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);
+   edgeLayer.append(svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'#3476cb','stroke-width':n>45?1.8:3.2,'stroke-linecap':'round'}));
+   if(len<1)continue;
+   const ux=dx/len,uy=dy/len;
+   const tipX=a.x+dx*.58,tipY=a.y+dy*.58;
+   const wing=Math.min(9,Math.max(3,len*.12)),arrowLen=Math.min(19,Math.max(9,len*.2));
+   const tailX=tipX-ux*arrowLen,tailY=tipY-uy*arrowLen;
+   arrowLayer.append(svgEl('polygon',{points:`${tipX},${tipY} ${tailX-uy*wing},${tailY+ux*wing} ${tailX+uy*wing},${tailY-ux*wing}`,fill:'#e47726',stroke:'#fff','stroke-width':'1.2','stroke-linejoin':'round'}));
+   const value=matrix?formatTime(matrix[route[i]-1][route[i+1]-1]):'?';
+   // Place travel time above each arrow, then move outward if it overlaps an earlier label.
+   let x=a.x+dx*.40-uy*19, y=a.y+dy*.40+ux*19;
+   const width=Math.max(22,String(value).length*8.7),height=20;
+   for(let attempt=0;attempt<16;attempt++){
+    const collide=labels.some(p=>Math.abs(p.x-x)<(p.w+width)/2+5&&Math.abs(p.y-y)<(p.h+height)/2+4);
+    if(!collide)break;
+    x+=-uy*13 + (attempt%2?ux*6:0);
+    y+=ux*13 + (attempt%2?uy*6:0);
+   }
+   labels.push({x,y,w:width,h:height});
+   const bg=svgEl('rect',{x:x-width/2-5,y:y-height/2-3,width:width+10,height:height+6,rx:7,fill:'#fff',stroke:'#d5e1ef','stroke-width':'1',opacity:'.96'});
+   const txt=svgEl('text',{x,y:y+5,'text-anchor':'middle','font-size':15,'font-weight':750,fill:'#184a7f'});
+   txt.textContent=value;
+   const title=svgEl('title');title.textContent=`${route[i]} → ${route[i+1]}：${value}`;
+   bg.append(title);labelLayer.append(bg,txt);
+  }
+  svg.append(edgeLayer,arrowLayer,labelLayer);
+ }
+ const rad=n>55?7:n>28?10:16;
+ pts.forEach((p,i)=>{
+  svg.append(svgEl('circle',{cx:p.x,cy:p.y,r:rad,fill:i===0?'#13876a':'#255d9d',stroke:'#fff','stroke-width':2}));
+  const pos=n>28?{x:p.x+(p.x-cx)*.075,y:p.y+(p.y-cy)*.075}:{x:p.x,y:p.y+5};
+  const text=svgEl('text',{x:pos.x,y:pos.y,'text-anchor':'middle','font-size':n>55?12:n>28?13:14,'font-weight':700,fill:n>28?'#243b59':'#fff'});
+  text.textContent=i+1;svg.append(text);
+ });
+ $('visual').replaceChildren(svg);
+}
 function resetRoute(note='訪問順が正しく入力されるまで経路は描画しません。'){if(model)draw(model.n);else $('visual').innerHTML='<div style="padding:45px;text-align:center;color:#67758b">Nとseedから距離配列を生成してください。</div>';$('score').textContent='';$('score').classList.add('hidden');$('travelTimes').classList.add('hidden');$('legRows').replaceChildren();$('totalTime').textContent='';status('routeStatus',note,'info')}
-function generate(){try{const {n,seed}=parameters();const matrix=makeMatrix(n,seed);$('triangle').value=formatTriangle(n,matrix);model={n,matrix};draw(n);resetRoute('距離配列を生成しました。長さN+1の訪問順を入力してください。');status('matrixStatus',`N=${n}・seed=${seed}から距離を生成しました。上三角の${n*(n+1)/2}個を表示しています。`,'success')}catch(e){status('matrixStatus',e.message,'error');model=null;resetRoute()}}
+function generate(){try{const {n,seed}=parameters();const matrix=makeMatrix(n,seed);$('triangle').value=formatTriangle(n,matrix);model={n,matrix};draw(n);resetRoute('距離配列を生成しました。長さN+1の訪問順を入力してください。');status('matrixStatus',`N=${n}・seed=${seed}から距離を生成しました。対角を除いた上三角の${n*(n-1)/2}個を表示しています。`,'success')}catch(e){status('matrixStatus',e.message,'error');model=null;resetRoute()}}
 function apply(){try{const next=parseTriangle($('triangle').value);$('n').value=String(next.n);model=next;draw(model.n);resetRoute('三角配列を反映しました。経路を再検証してください。');status('matrixStatus',`N=${model.n}の距離配列を反映しました。d(i,j)=d(j,i)として扱います。`,'success')}catch(e){model=null;status('matrixStatus',e.message,'error');resetRoute('距離配列の入力エラーを修正してください。')}}
 function formatTime(value){return Number(value.toFixed(6)).toLocaleString('ja-JP',{maximumFractionDigits:6})}
-function show(){try{const next=parseTriangle($('triangle').value);model=next;$('n').value=String(next.n);const order=parseRoute($('route').value,next.n);let score=0;const legRows=[];for(let i=0;i<next.n;i++){const t=next.matrix[order[i]-1][order[i+1]-1];score+=t;const tr=document.createElement('tr');const pathCell=document.createElement('td');const timeCell=document.createElement('td');pathCell.textContent=`${order[i]} → ${order[i+1]}`;timeCell.textContent=formatTime(t);tr.append(pathCell,timeCell);legRows.push(tr)}draw(next.n,order);$('score').textContent=`Score: ${formatTime(score)}`;$('score').classList.remove('hidden');$('totalTime').textContent=formatTime(score);$('legRows').replaceChildren(...legRows);$('travelTimes').classList.remove('hidden');status('matrixStatus',`N=${next.n}の三角配列を利用しています。`,'success');status('routeStatus',`有効な巡回路です。${next.n}都市をちょうど1回ずつ訪問して都市1に戻ります。`,'success')}catch(e){model=null;try{model=parseTriangle($('triangle').value)}catch(_){ }resetRoute();status('routeStatus','エラー: '+e.message,'error')}}
+function show(){try{const next=parseTriangle($('triangle').value);model=next;$('n').value=String(next.n);const order=parseRoute($('route').value,next.n);let score=0;const legRows=[];for(let i=0;i<next.n;i++){const t=next.matrix[order[i]-1][order[i+1]-1];score+=t;const tr=document.createElement('tr');const pathCell=document.createElement('td');const timeCell=document.createElement('td');pathCell.textContent=`${order[i]} → ${order[i+1]}`;timeCell.textContent=formatTime(t);tr.append(pathCell,timeCell);legRows.push(tr)}draw(next.n,order,next.matrix);$('score').textContent=`Score: ${formatTime(score)}`;$('score').classList.remove('hidden');$('totalTime').textContent=formatTime(score);$('legRows').replaceChildren(...legRows);$('travelTimes').classList.remove('hidden');status('matrixStatus',`N=${next.n}の三角配列を利用しています。`,'success');status('routeStatus',`有効な巡回路です。${next.n}都市をちょうど1回ずつ訪問して都市1に戻ります。`,'success')}catch(e){model=null;try{model=parseTriangle($('triangle').value)}catch(_){ }resetRoute();status('routeStatus','エラー: '+e.message,'error')}}
 $('generate').addEventListener('click',generate);$('apply').addEventListener('click',apply);$('show').addEventListener('click',show);
 $('example').addEventListener('click',()=>{try{const n=model?.n??parameters().n;$('route').value='['+Array.from({length:n},(_,i)=>i+1).concat(1).join(', ')+']';resetRoute('訪問順の入力例を入れました。「検証して経路と移動時間を表示」を押してください。')}catch(e){status('routeStatus',e.message,'error')}});
 $('copy').addEventListener('click',async()=>{try{parseTriangle($('triangle').value);await navigator.clipboard.writeText($('triangle').value);status('matrixStatus','Nと三角配列をコピーしました。','success')}catch(e){if(e.name==='NotAllowedError'||e.name==='SecurityError'){ $('triangle').focus();$('triangle').select();status('matrixStatus','自動コピーが許可されませんでした。選択済みの内容をCtrl+Cでコピーしてください。','info')}else status('matrixStatus',e.message,'error')}});
