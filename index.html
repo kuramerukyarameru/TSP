@@ -1,67 +1,65 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TSP Route Visualizer</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TSP 三角距離配列・経路ビジュアライザ</title>
 <style>
-:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#172235;background:#f4f6fa}*{box-sizing:border-box}body{margin:0}header{background:#172b4d;color:white;padding:23px max(20px,calc((100vw - 1140px)/2))}h1{margin:0;font-size:1.55rem}header p{margin:8px 0 0;color:#cbd6e7;font-size:.93rem}.layout{max-width:1140px;margin:26px auto;padding:0 18px;display:grid;grid-template-columns:350px minmax(0,1fr);gap:22px}.panel{background:white;border-radius:14px;padding:22px;box-shadow:0 4px 20px #1722350c}.panel h2{font-size:1.05rem;margin:0 0 18px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:block;font-size:.88rem;font-weight:700;margin-bottom:7px}input,textarea{width:100%;border:1px solid #c9d3e1;border-radius:9px;padding:11px;font:inherit;color:#1b293d;background:white}input:focus,textarea:focus{outline:2px solid #4a8af8;outline-offset:1px}textarea{height:132px;resize:vertical;font-family:ui-monospace,Consolas,monospace;font-size:.91rem}small{display:block;color:#67758b;margin:8px 0 0;line-height:1.5}.route{margin-top:24px}button{background:#1f64d8;border:0;border-radius:9px;padding:12px 18px;color:white;font-weight:750;font-size:.93rem;cursor:pointer;width:100%;margin-top:14px}button:hover{background:#174fb2}.ghost{background:#eaf1fc;color:#2358a8}.ghost:hover{background:#dce8fa}.status{margin-top:14px;border-radius:9px;padding:12px;font-size:.9rem;line-height:1.5}.status.error{color:#a3212f;background:#fff0f1;border:1px solid #ffccd3}.status.success{color:#126143;background:#eaf9f0;border:1px solid #b5e3cd}.status.info{color:#435977;background:#eff4fb;border:1px solid #d7e4f7}.hidden{display:none}.vizhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}.score{font-variant-numeric:tabular-nums;font-size:1.55rem;font-weight:800;color:#116549}.score small{font-size:.75rem;font-weight:600;margin:0}.canvaswrap{position:relative;min-height:430px;background:#f9fbfe;border-radius:12px;border:1px solid #e3eaf3;overflow:hidden;margin-top:18px}.canvaswrap svg{width:100%;height:auto;display:block;aspect-ratio:1.5}.placeholder{min-height:430px;display:grid;place-items:center;text-align:center;color:#627590;padding:26px;line-height:1.8}.legend{font-size:.8rem;color:#65758d;margin-top:11px;line-height:1.5}.mono{font-family:ui-monospace,Consolas,monospace}.footer{max-width:1140px;margin:0 auto 30px;padding:0 18px;color:#6d7d91;font-size:.82rem}@media(max-width:770px){.layout{grid-template-columns:1fr}.canvaswrap,.placeholder{min-height:300px}}
+:root{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#18263b;background:#f2f5f9}*{box-sizing:border-box}body{margin:0}header{background:#152b4c;color:#fff;padding:22px max(20px,calc((100vw - 1200px)/2))}header h1{margin:0;font-size:1.45rem}header p{margin:7px 0 0;color:#cfdbed;font-size:.91rem}.layout{max-width:1200px;margin:20px auto;padding:0 18px;display:grid;grid-template-columns:minmax(330px,460px) minmax(0,1fr);gap:18px}.panel{background:white;border:1px solid #e4eaf2;border-radius:14px;padding:20px;box-shadow:0 3px 14px #142d5010}.panel h2{margin:0 0 14px;font-size:1.05rem}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:block;font-weight:700;font-size:.88rem;margin:0 0 7px}input,textarea{width:100%;border:1px solid #bdcbdc;border-radius:9px;padding:10px;font:inherit;background:#fff;color:#18263b}textarea{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.85rem;resize:vertical;line-height:1.6}textarea#triangle{height:235px}textarea#route{height:82px}input:focus,textarea:focus{outline:2px solid #5b9bee;outline-offset:1px}button{border:0;border-radius:9px;background:#2463ca;color:#fff;padding:11px 14px;font-weight:700;cursor:pointer;font-size:.91rem}button:hover{background:#1a4fa5}button.secondary{color:#2352a0;background:#eaf1fb}button.secondary:hover{background:#dce9fa}.buttons{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.sub{color:#66758a;font-size:.81rem;line-height:1.6;margin:7px 0 11px}.status{border-radius:9px;padding:11px 13px;margin:12px 0;font-size:.88rem;line-height:1.5}.info{background:#edf3fd;color:#2a5488}.error{background:#fff0f1;color:#a52938}.success{background:#e9f9f1;color:#17704a}.hidden{display:none}.section{margin-top:23px;padding-top:19px;border-top:1px solid #e9edf4}.vizheader{display:flex;justify-content:space-between;align-items:center;gap:12px}.score{font-size:1.35rem;font-weight:800;color:#15704b;font-variant-numeric:tabular-nums}.canvas{border:1px solid #e1e7f0;border-radius:13px;background:#f9fbff;margin-top:13px;overflow:hidden}.canvas svg{display:block;width:100%;height:auto;aspect-ratio:1.25}.legend{color:#607187;font-size:.82rem;line-height:1.7;margin:10px 0}.sample{color:#354f73;background:#f4f7fc;border-radius:8px;padding:9px;font: .85rem ui-monospace,Consolas,monospace}.footer{max-width:1200px;margin:0 auto 25px;padding:0 18px;color:#64758b;font-size:.82rem}@media(max-width:850px){.layout{grid-template-columns:1fr}}@media(max-width:410px){.row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header><h1>TSP Route Visualizer</h1><p>seedで都市を生成・巡回順を検証・経路長を採点</p></header>
+<header><h1>TSP 三角距離配列・経路ビジュアライザ</h1><p>正N角形に都市1〜Nを時計回りに配置。完全グラフの辺は描画しません。</p></header>
 <main class="layout">
 <section class="panel">
-<h2>1. 問題設定</h2>
-<div class="fields"><div><label for="n">都市数 N</label><input id="n" type="number" min="2" max="300" step="1" value="12"></div><div><label for="seed">seed</label><input id="seed" type="number" step="1" value="42"></div></div>
-<small>都市は <span class="mono">0, 1, ..., N-1</span>。同じN・seedなら同じ座標になります。Nは2〜300。</small>
-<button class="ghost" id="example" type="button">入力用の訪問順を生成</button>
-<div class="route"><h2>2. 訪問順の入力</h2><label for="order">訪問順（N+1個の整数）</label><textarea id="order" spellcheck="false" placeholder="例: 0 1 2 3 4 5 6 7 8 9 10 11 0"></textarea><small>カンマ、空白、改行で区切れます。角括弧 [ ] も使用可能です。都市0を出発・帰着地点とします。</small></div>
-<button id="show" type="button">検証してスコア・経路を表示</button>
-<div id="status" class="status info" role="status" aria-live="polite">まだ経路は描画していません。正しい訪問順を入力してください。</div>
+<h2>1. N と seed</h2>
+<div class="row"><div><label for="n">都市数 N</label><input id="n" type="number" value="5" min="3" max="100" step="1"></div><div><label for="seed">seed（整数）</label><input id="seed" type="number" value="42" step="1"></div></div>
+<p class="sub">「距離配列を生成」を押すと、seedで決まる大きさの正N角形を生成し、全都市間距離を三角配列で表示します。都市の配置は常に正多角形です。</p>
+<div class="buttons"><button id="generate">距離配列を生成</button><button id="copy" class="secondary">Nと三角配列をコピー</button></div>
+<div class="section"><h2>2. N と距離の三角配列</h2>
+<label for="triangle">1行目にN、続けてN行の距離</label>
+<textarea id="triangle" spellcheck="false" aria-describedby="triangleHelp"></textarea>
+<p class="sub" id="triangleHelp">1行目：N個（d(1,1)〜d(1,N)）、2行目：N−1個（d(2,2)〜d(2,N)）、…、最終行：1個（d(N,N)）。距離は非負の数、対角成分は0。手入力・貼り付けして「配列を反映」もできます。</p>
+<div class="buttons"><button id="apply" class="secondary">配列を反映</button></div>
+<div id="matrixStatus" role="status" aria-live="polite" class="status info">距離配列を生成するか、貼り付けてください。</div>
+</div>
+<div class="section"><h2>3. 訪問順の配列</h2>
+<label for="route">長さ N+1 の配列</label><textarea id="route" placeholder="[1, 2, 3, 4, 5, 1]" spellcheck="false"></textarea>
+<p class="sub">都市1から出発し、2〜Nを各1回訪問して都市1に帰着。カンマ・空白区切り、[]の有無は自由です。</p>
+<div class="buttons"><button id="show">検証して経路とスコアを表示</button><button id="example" class="secondary">訪問順の入力例</button></div>
+<div id="routeStatus" role="status" aria-live="polite" class="status info">訪問順が正しく入力されるまで経路は描画しません。</div></div>
 </section>
-<section class="panel"><div class="vizhead"><h2>3. ビジュアライザ</h2><div id="score" class="score hidden"></div></div><div class="canvaswrap" id="viz"><div class="placeholder">正しい長さ N+1 の配列が入力されたときだけ<br>訪問経路を表示します。<br>完全グラフの辺は描画しません。</div></div><div class="legend">青線：訪問順に沿った経路 ／ 緑：出発・帰着都市 0 ／ 数字：都市番号。スコアは各辺のユークリッド距離の合計（小さいほど良い）。</div></section>
-</main><div class="footer">GitHub Pagesで動作する静的サイトです。サーバー不要・外部ライブラリ不要。</div>
+<section class="panel"><div class="vizheader"><h2>4. ビジュアライザ</h2><div class="score hidden" id="score"></div></div>
+<div class="canvas" id="visual"></div>
+<p class="legend">都市を正N角形の頂点に時計回りに配置します。灰色の円は位置の目安で、完全グラフの辺は表示しません。<strong>有効な経路を入力したときだけ</strong>青い線を描画します。スコアは三角配列の距離の合計です（小さいほど良い）。</p>
+<p class="sub">※ 三角配列を手で変更した場合、都市間距離と図上の直線距離が一致するとは限りません。図は都市の順序と経路を示します。</p>
+</section>
+</main><div class="footer">GitHub Pages対応・外部ライブラリ不要・ブラウザ内のみで動作します。</div>
 <script>
 'use strict';
-const $ = id => document.getElementById(id);
-// mulberry32: integer seed -> reproducible pseudo-random values in [0,1).
+const $=id=>document.getElementById(id);
+let model=null;
+function parameters(){const n=Number($('n').value),seed=Number($('seed').value);if(!Number.isSafeInteger(n)||n<3||n>100)throw Error('Nは3〜100の整数を指定してください。');if(!Number.isSafeInteger(seed))throw Error('seedは安全な整数を指定してください。');return {n,seed};}
 function rng(seed){let a=seed>>>0;return function(){a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296}}
-function parameters(){
- const n=Number($('n').value),seed=Number($('seed').value);
- if(!Number.isSafeInteger(n)||n<2||n>300)throw Error('Nは2〜300の整数にしてください。');
- if(!Number.isSafeInteger(seed))throw Error('seedは安全な整数にしてください。');
- return {n,seed};
-}
-function parseOrder(s,n){
- let source=s.trim();if(!source)throw Error('訪問順の配列を入力してください。');
- if(source.startsWith('[')||source.endsWith(']')){
-   if(!(source.startsWith('[')&&source.endsWith(']')))throw Error('角括弧 [ ] の対応が正しくありません。');
-   source=source.slice(1,-1).trim();
- }
- const tokens=source.split(/[\s,]+/).filter(Boolean);
- if(tokens.length!==n+1)throw Error(`配列の長さが不正です。N=${n}のとき${n+1}個必要ですが、${tokens.length}個でした。`);
- const route=tokens.map((token,i)=>{if(!/^(0|[1-9]\d*)$/.test(token))throw Error(`${i+1}番目の値「${token}」は0以上の整数ではありません。`);const v=Number(token);if(!Number.isSafeInteger(v)||v>=n)throw Error(`${i+1}番目の都市番号${token}は範囲外です（0〜${n-1}）。`);return v});
- if(route[0]!==0||route[n]!==0)throw Error('先頭と末尾は出発・帰着都市の0にしてください。');
- const visited=new Set();
- for(let i=0;i<n;i++){const v=route[i];if(visited.has(v))throw Error(`都市${v}が重複して訪問されています。`);visited.add(v)}
- return route;
-}
-function coordinates(n,seed){const random=rng(seed);return Array.from({length:n},()=>({x:45+random()*910,y:45+random()*610}))}
+function makePoints(n,radius=1){return Array.from({length:n},(_,i)=>{const a=-Math.PI/2+2*Math.PI*i/n;return{x:radius*Math.cos(a),y:radius*Math.sin(a)}})}
 function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
-function scoreRoute(route,points){let sum=0;for(let i=0;i<route.length-1;i++)sum+=distance(points[route[i]],points[route[i+1]]);return sum}
-function element(tag,attributes={}){const el=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v] of Object.entries(attributes))el.setAttribute(k,String(v));return el}
-function visualize(route,points){
- const svg=element('svg',{viewBox:'0 0 1000 700',role:'img','aria-label':'巡回セールスマン問題の経路'});
- const line=element('polyline',{points:route.map(i=>`${points[i].x},${points[i].y}`).join(' '),fill:'none',stroke:'#397ad3','stroke-width':2.7,'stroke-linejoin':'round','stroke-linecap':'round'});svg.append(line);
- // Direction arrows are omitted for clarity with many cities; the sequence remains encoded by the input.
- points.forEach((p,i)=>{const start=i===0;const circle=element('circle',{cx:p.x,cy:p.y,r:start?8:5.5,fill:start?'#138962':'#2563a7',stroke:'white','stroke-width':2});svg.append(circle);
- if(points.length<=80||start){const text=element('text',{x:p.x+9,y:p.y-9,'font-size':points.length>40?12:15,'font-weight':start?750:500,fill:start?'#096d4a':'#233b59'});text.textContent=String(i);svg.append(text)}});
- $('viz').replaceChildren(svg);
-}
-function clearResult(message,type='error'){$('viz').innerHTML='<div class="placeholder">正しい訪問順が入力されるまで経路を表示しません。<br>完全グラフは描画しません。</div>';$('score').replaceChildren();$('score').classList.add('hidden');$('status').textContent=message;$('status').className='status '+type}
-function run(){try{const {n,seed}=parameters();const route=parseOrder($('order').value,n);const pts=coordinates(n,seed);const value=scoreRoute(route,pts);visualize(route,pts);$('score').textContent=value.toFixed(3);$('score').classList.remove('hidden');$('status').textContent=`有効な巡回路です。${n}都市をそれぞれ1回訪問し、都市0に帰着しています。`;$('status').className='status success'}catch(e){clearResult(e.message)}}
-$('show').addEventListener('click',run);
-$('example').addEventListener('click',()=>{try{const {n}=parameters();$('order').value=Array.from({length:n},(_,i)=>i).concat(0).join(', ');clearResult('入力例を生成しました。「検証してスコア・経路を表示」を押してください。','info')}catch(e){clearResult(e.message)}});
-['n','seed','order'].forEach(id=>$(id).addEventListener('input',()=>clearResult('入力が変更されました。検証して表示し直してください。','info')));
+function makeMatrix(n,seed){const rand=rng(seed);const radius=70+Math.floor(rand()*131);const p=makePoints(n,radius);return Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?0:Number(distance(p[i],p[j]).toFixed(2))))}
+function formatTriangle(n,matrix){const lines=[String(n)];for(let i=0;i<n;i++)lines.push(matrix[i].slice(i).map(v=>String(v)).join(' '));return lines.join('\n')}
+function parseTriangle(raw){let lines=raw.trim().split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(!lines.length)throw Error('三角配列が空です。');const header=lines[0].split(/[\s,]+/);if(header.length!==1||!/^[0-9]+$/.test(header[0]))throw Error('1行目には都市数Nを1つだけ書いてください。');const n=Number(header[0]);if(!Number.isSafeInteger(n)||n<3||n>100)throw Error('Nは3〜100の整数にしてください。');if(lines.length!==n+1)throw Error(`N=${n}なので、1行目のNと距離${n}行、合計${n+1}行が必要です（現在${lines.length}行）。`);const m=Array.from({length:n},()=>Array(n).fill(0));for(let i=0;i<n;i++){const t=lines[i+1].split(/[\s,]+/).filter(Boolean);if(t.length!==n-i)throw Error(`距離の${i+1}行目は${n-i}個必要です（現在${t.length}個）。`);for(let k=0;k<t.length;k++){const token=t[k];if(!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(token))throw Error(`距離の${i+1}行目、${k+1}個目は非負の数にしてください。`);const v=Number(token);if(!Number.isFinite(v))throw Error('距離に無限大は使えません。');if(k===0&&v!==0)throw Error(`対角成分d(${i+1},${i+1})は0にしてください。`);m[i][i+k]=m[i+k][i]=v;}}return{n,matrix:m}}
+function parseRoute(s,n){let a=s.trim();if(!a)throw Error('訪問順を入力してください。');if(a.startsWith('[')||a.endsWith(']')){if(!a.startsWith('[')||!a.endsWith(']'))throw Error('角括弧が対応していません。');a=a.slice(1,-1).trim()}const t=a.split(/[\s,]+/).filter(Boolean);if(t.length!==n+1)throw Error(`N=${n}の訪問順は長さ${n+1}が必要です（現在${t.length}個）。`);const order=t.map((v,i)=>{if(!/^[1-9][0-9]*$/.test(v))throw Error(`${i+1}番目の値「${v}」は1以上の整数ではありません。`);const num=Number(v);if(!Number.isSafeInteger(num)||num>n)throw Error(`都市${v}は範囲外です（1〜${n}）。`);return num});if(order[0]!==1||order[n]!==1)throw Error('先頭と末尾は都市1にしてください。');const seen=new Set();for(let i=0;i<n;i++){if(seen.has(order[i]))throw Error(`都市${order[i]}が重複しています。`);seen.add(order[i])}return order}
+function status(id,msg,type){$(id).textContent=msg;$(id).className='status '+type}
+function svgEl(name,attrs={}){const e=document.createElementNS('http://www.w3.org/2000/svg',name);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,String(v)));return e}
+function draw(n,route=null){const svg=svgEl('svg',{viewBox:'0 0 640 510',role:'img','aria-label':route?'TSPの訪問経路':'正多角形に配置された都市'});const cx=320,cy=245,r=193;const pts=makePoints(n).map(p=>({x:cx+r*p.x,y:cy+r*p.y}));svg.append(svgEl('circle',{cx,cy,r,fill:'none',stroke:'#dae3ef','stroke-width':'1.6','stroke-dasharray':'6 5'}));if(route){for(let i=0;i<n;i++){const a=pts[route[i]-1],b=pts[route[i+1]-1];svg.append(svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'#3575d7','stroke-width':n>60?1.5:2.8,'stroke-linecap':'round'}))}}
+ const rad=n>55?7:n>28?9:12;pts.forEach((p,i)=>{svg.append(svgEl('circle',{cx:p.x,cy:p.y,r:rad,fill:i===0?'#13876a':'#255d9d',stroke:'#fff','stroke-width':1.4}));const pos=n>55?{x:p.x+(p.x-cx)*.065,y:p.y+(p.y-cy)*.065}:{x:p.x,y:p.y+4};const text=svgEl('text',{x:pos.x,y:pos.y,'text-anchor':'middle','font-size':n>55?10:n>28?10:11,'font-weight':700,fill:n>55?'#243b59':'#fff'});text.textContent=i+1;svg.append(text)});$('visual').replaceChildren(svg)}
+function resetRoute(note='訪問順が正しく入力されるまで経路は描画しません。'){if(model)draw(model.n);else $('visual').innerHTML='<div style="padding:45px;text-align:center;color:#67758b">Nとseedから距離配列を生成してください。</div>';$('score').textContent='';$('score').classList.add('hidden');status('routeStatus',note,'info')}
+function generate(){try{const {n,seed}=parameters();const matrix=makeMatrix(n,seed);$('triangle').value=formatTriangle(n,matrix);model={n,matrix};draw(n);resetRoute('距離配列を生成しました。長さN+1の訪問順を入力してください。');status('matrixStatus',`N=${n}・seed=${seed}から距離を生成しました。上三角の${n*(n+1)/2}個を表示しています。`,'success')}catch(e){status('matrixStatus',e.message,'error');model=null;resetRoute()}}
+function apply(){try{const next=parseTriangle($('triangle').value);$('n').value=String(next.n);model=next;draw(model.n);resetRoute('三角配列を反映しました。経路を再検証してください。');status('matrixStatus',`N=${model.n}の距離配列を反映しました。d(i,j)=d(j,i)として扱います。`,'success')}catch(e){model=null;status('matrixStatus',e.message,'error');resetRoute('距離配列の入力エラーを修正してください。')}}
+function show(){try{const next=parseTriangle($('triangle').value);model=next;$('n').value=String(next.n);const order=parseRoute($('route').value,next.n);let score=0;for(let i=0;i<next.n;i++)score+=next.matrix[order[i]-1][order[i+1]-1];draw(next.n,order);$('score').textContent=`Score: ${Number(score.toFixed(6)).toLocaleString('ja-JP',{maximumFractionDigits:6})}`;$('score').classList.remove('hidden');status('matrixStatus',`N=${next.n}の三角配列を利用しています。`,'success');status('routeStatus',`有効な巡回路です。${next.n}都市をちょうど1回ずつ訪問して都市1に戻ります。`,'success')}catch(e){model=null;try{model=parseTriangle($('triangle').value)}catch(_){ }resetRoute();status('routeStatus','エラー: '+e.message,'error')}}
+$('generate').addEventListener('click',generate);$('apply').addEventListener('click',apply);$('show').addEventListener('click',show);
+$('example').addEventListener('click',()=>{try{const n=model?.n??parameters().n;$('route').value='['+Array.from({length:n},(_,i)=>i+1).concat(1).join(', ')+']';resetRoute('訪問順の入力例を入れました。「検証して経路とスコアを表示」を押してください。')}catch(e){status('routeStatus',e.message,'error')}});
+$('copy').addEventListener('click',async()=>{try{parseTriangle($('triangle').value);await navigator.clipboard.writeText($('triangle').value);status('matrixStatus','Nと三角配列をコピーしました。','success')}catch(e){if(e.name==='NotAllowedError'||e.name==='SecurityError'){ $('triangle').focus();$('triangle').select();status('matrixStatus','自動コピーが許可されませんでした。選択済みの内容をCtrl+Cでコピーしてください。','info')}else status('matrixStatus',e.message,'error')}});
+$('route').addEventListener('input',()=>resetRoute('訪問順が変更されました。再度検証してください。'));
+$('triangle').addEventListener('input',()=>{model=null;resetRoute('三角配列が変更されました。「配列を反映」または経路の検証をしてください。');status('matrixStatus','未検証の三角配列です。','info')});
+['n','seed'].forEach(id=>$(id).addEventListener('input',()=>{status('matrixStatus','Nまたはseedが変更されました。「距離配列を生成」で更新してください。','info');resetRoute('設定が変更されました。必要に応じて距離を再生成してください。')}));
+generate();
 </script>
 </body></html>
